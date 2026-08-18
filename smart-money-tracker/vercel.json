@@ -1,0 +1,16 @@
+{
+  "framework": "nextjs",
+  "functions": {
+    "app/api/**/*.ts": { "maxDuration": 30 }
+  },
+  "crons": [
+    {
+      "path": "/api/trump/cron",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/trump/price-update",
+      "schedule": "*/15 * * * *"
+    }
+  ]
+}

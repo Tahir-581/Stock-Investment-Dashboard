@@ -1,0 +1,479 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:600px;gap:0;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-primary)}
+.sidebar{background:var(--color-background-secondary);border-right:0.5px solid var(--color-border-tertiary);padding:16px 0;display:flex;flex-direction:column;gap:2px}
+.sidebar-title{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.06em;text-transform:uppercase;padding:8px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:var(--color-text-secondary);cursor:pointer;border-radius:0;transition:background .15s}
+.nav-item:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
+.nav-item.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border-right:2px solid var(--color-text-info)}
+.nav-item i{font-size:15px;opacity:.7}
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.topbar-left{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
+.badge-live{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-q{background:var(--color-background-info);color:var(--color-text-info)}
+.content{padding:20px;flex:1;overflow:auto}
+.section{display:none}
+.section.active{display:block}
+
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.metric-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.metric-label{font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px}
+.metric-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.metric-sub{font-size:11px;color:var(--color-text-success);margin-top:2px}
+
+.table-wrap{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--color-background-secondary);padding:8px 12px;text-align:left;font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:9px 12px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--color-background-secondary);cursor:pointer}
+.ticker-pill{display:inline-block;background:var(--color-background-info);color:var(--color-text-info);font-size:11px;font-weight:500;padding:2px 7px;border-radius:4px}
+.avatar{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0}
+.av-blue{background:#B5D4F4;color:#0C447C}
+.av-green{background:#C0DD97;color:#27500A}
+.av-amber{background:#FAC775;color:#633806}
+.av-purple{background:#CECBF6;color:#3C3489}
+.av-teal{background:#9FE1CB;color:#085041}
+.av-coral{background:#F5C4B3;color:#712B13}
+.inv-row{display:flex;align-items:center;gap:8px}
+.form-badge{font-size:10px;padding:2px 6px;border-radius:3px;font-weight:500}
+.f13f{background:var(--color-background-info);color:var(--color-text-info)}
+.f4{background:var(--color-background-success);color:var(--color-text-success)}
+.f13d{background:var(--color-background-warning);color:var(--color-text-warning)}
+.pos{color:var(--color-text-success)}
+.neg{color:var(--color-text-danger)}
+.pct-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;width:80px;display:inline-block;vertical-align:middle;margin-left:6px}
+.pct-fill{height:4px;background:var(--color-text-info);border-radius:2px}
+
+.feed-item{display:flex;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:flex-start}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.dot-green{background:var(--color-text-success)}
+.dot-blue{background:var(--color-text-info)}
+.dot-amber{background:var(--color-text-warning)}
+.dot-red{background:var(--color-text-danger)}
+.feed-body{flex:1}
+.feed-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.feed-meta{font-size:11px;color:var(--color-text-tertiary)}
+.feed-amount{font-size:12px;font-weight:500;color:var(--color-text-primary);white-space:nowrap}
+
+.profile-header{display:flex;gap:16px;align-items:center;margin-bottom:20px;padding:16px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+.profile-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500}
+.profile-info h2{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.profile-info p{font-size:12px;color:var(--color-text-secondary)}
+.profile-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.holdings-row{display:grid;grid-template-columns:1fr 60px 80px 60px 90px 80px;gap:12px;align-items:center;padding:9px 12px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.holdings-row.header{background:var(--color-background-secondary);font-weight:500;font-size:11px;color:var(--color-text-secondary)}
+.donut-wrap{display:flex;gap:20px;align-items:center}
+.donut-legend{display:flex;flex-direction:column;gap:6px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--color-text-secondary)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.section-label{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.chip{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);cursor:pointer;background:transparent}
+.chip.sel{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent}
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.tab{padding:8px 16px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--color-text-info);border-bottom-color:var(--color-text-info);font-weight:500}
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Smart Money Tracker — institutional and insider investment dashboard</h2>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-title">Smart Money</div>
+    <div class="nav-item active" onclick="show('feed',this)"><i class="ti ti-bolt" aria-hidden="true"></i> Live feed</div>
+    <div class="nav-item" onclick="show('investments',this)"><i class="ti ti-chart-bar" aria-hidden="true"></i> Investments</div>
+    <div class="nav-item" onclick="show('investors',this)"><i class="ti ti-users" aria-hidden="true"></i> Investors</div>
+    <div class="nav-item" onclick="show('profile',this)"><i class="ti ti-user" aria-hidden="true"></i> Investor profile</div>
+    <div class="nav-item" onclick="show('alerts',this)"><i class="ti ti-bell" aria-hidden="true"></i> Alerts</div>
+    <div style="flex:1"></div>
+    <div style="padding:12px 16px;font-size:11px;color:var(--color-text-tertiary)">Data: SEC EDGAR<br>Forms: 13F · 4 · 13D/G</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left" id="page-title">Live filing feed</div>
+      <div class="topbar-right">
+        <span class="badge badge-live">● Live</span>
+        <span class="badge badge-q">Q2 2026</span>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- LIVE FEED -->
+      <div class="section active" id="sec-feed">
+        <div class="metrics-row">
+          <div class="metric-card"><div class="metric-label">Filings today</div><div class="metric-val">47</div><div class="metric-sub">↑ 12 vs yesterday</div></div>
+          <div class="metric-card"><div class="metric-label">Total value filed</div><div class="metric-val">$2.4B</div><div class="metric-sub">↑ across 23 tickers</div></div>
+          <div class="metric-card"><div class="metric-label">Insider buys</div><div class="metric-val">18</div><div class="metric-sub">Form 4 · last 24h</div></div>
+          <div class="metric-card"><div class="metric-label">New 13D/G alerts</div><div class="metric-val">3</div><div class="metric-sub">5%+ threshold</div></div>
+        </div>
+        <div class="section-head"><span class="section-label">Recent filings</span></div>
+        <div class="filter-row">
+          <span class="chip sel" onclick="selChip(this)">All forms</span>
+          <span class="chip" onclick="selChip(this)">Form 13F</span>
+          <span class="chip" onclick="selChip(this)">Form 4</span>
+          <span class="chip" onclick="selChip(this)">13D / 13G</span>
+          <span class="chip" onclick="selChip(this)">Hedge funds</span>
+          <span class="chip" onclick="selChip(this)">PE</span>
+          <span class="chip" onclick="selChip(this)">Insiders</span>
+        </div>
+        <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:0 14px">
+          <div class="feed-item">
+            <div class="feed-dot dot-green"></div>
+            <div class="feed-body">
+              <div class="feed-title"><span class="form-badge f4">Form 4</span>&nbsp; Jensen Huang bought <span class="ticker-pill">NVDA</span></div>
+              <div class="feed-meta">NVIDIA Corp · CEO · Filed 2 min ago · Trans. date Jun 2, 2026</div>
+            </div>
+            <div class="feed-amount pos">+$48.2M</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot dot-blue"></div>
+            <div class="feed-body">
+              <div class="feed-title"><span class="form-badge f13d">13D</span>&nbsp; Elliott Management increased stake in <span class="ticker-pill">HONEYWELL</span></div>
+              <div class="feed-meta">Activist investor · 8.3% ownership · Filed 14 min ago</div>
+            </div>
+            <div class="feed-amount pos">+$1.2B</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot dot-amber"></div>
+            <div class="feed-body">
+              <div class="feed-title"><span class="form-badge f13f">13F</span>&nbsp; Bridgewater Associates — Q1 2026 holdings</div>
+              <div class="feed-meta">1,040 positions · Period: Mar 31, 2026 · Filed today</div>
+            </div>
+            <div class="feed-amount" style="color:var(--color-text-secondary)">$27.4B AUM</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot dot-green"></div>
+            <div class="feed-body">
+              <div class="feed-title"><span class="form-badge f4">Form 4</span>&nbsp; Tim Cook sold <span class="ticker-pill">AAPL</span></div>
+              <div class="feed-meta">Apple Inc · CEO · Filed 1h ago · Trans. date Jun 1, 2026</div>
+            </div>
+            <div class="feed-amount neg">−$96.3M</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot dot-blue"></div>
+            <div class="feed-body">
+              <div class="feed-title"><span class="form-badge f13f">13F</span>&nbsp; Berkshire Hathaway — Q1 2026 holdings</div>
+              <div class="feed-meta">New: <span class="ticker-pill">TSM</span> · Increased: <span class="ticker-pill">OXY</span> · Filed 2h ago</div>
+            </div>
+            <div class="feed-amount" style="color:var(--color-text-secondary)">$380B AUM</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot dot-green"></div>
+            <div class="feed-body">
+              <div class="feed-title"><span class="form-badge f4">Form 4</span>&nbsp; Mark Zuckerberg sold <span class="ticker-pill">META</span></div>
+              <div class="feed-meta">Meta Platforms · CEO · Filed 3h ago · Trans. date Jun 1, 2026</div>
+            </div>
+            <div class="feed-amount neg">−$210.5M</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot dot-amber"></div>
+            <div class="feed-body">
+              <div class="feed-title"><span class="form-badge f13f">13F</span>&nbsp; Tiger Global Management — Q1 2026</div>
+              <div class="feed-meta">New positions: <span class="ticker-pill">AMZN</span> <span class="ticker-pill">PLTR</span> · Exited: <span class="ticker-pill">SNOW</span></div>
+            </div>
+            <div class="feed-amount" style="color:var(--color-text-secondary)">$14.1B AUM</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVESTMENTS TABLE -->
+      <div class="section" id="sec-investments">
+        <div class="metrics-row">
+          <div class="metric-card"><div class="metric-label">Tracked investors</div><div class="metric-val">84</div></div>
+          <div class="metric-card"><div class="metric-label">Unique tickers</div><div class="metric-val">312</div></div>
+          <div class="metric-card"><div class="metric-label">Total tracked AUM</div><div class="metric-val">$4.7T</div></div>
+          <div class="metric-card"><div class="metric-label">New this quarter</div><div class="metric-val">127</div><div class="metric-sub">positions opened</div></div>
+        </div>
+        <div class="section-head"><span class="section-label">All investments</span></div>
+        <div class="filter-row">
+          <span class="chip sel" onclick="selChip(this)">All</span>
+          <span class="chip" onclick="selChip(this)">New positions</span>
+          <span class="chip" onclick="selChip(this)">Increased</span>
+          <span class="chip" onclick="selChip(this)">Reduced</span>
+          <span class="chip" onclick="selChip(this)">Exited</span>
+          <span class="chip" onclick="selChip(this)">Tech</span>
+          <span class="chip" onclick="selChip(this)">Energy</span>
+          <span class="chip" onclick="selChip(this)">Finance</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Investor</th>
+                <th>Ticker</th>
+                <th>Action</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>% of portfolio</th>
+                <th>Shares</th>
+                <th>Avg price</th>
+                <th>Form</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr onclick="sendPrompt('Show me Berkshire Hathaway full Q1 2026 13F portfolio details')">
+                <td><div class="inv-row"><div class="avatar av-amber">BH</div><span>Berkshire Hathaway</span></div></td>
+                <td><span class="ticker-pill">AAPL</span></td>
+                <td><span style="color:var(--color-text-success);font-size:11px;font-weight:500">▲ Added</span></td>
+                <td>Mar 31</td>
+                <td class="pos">+$9.2B</td>
+                <td>22.6%<div class="pct-bar"><div class="pct-fill" style="width:91%"></div></div></td>
+                <td>400M</td>
+                <td>$173.40</td>
+                <td><span class="form-badge f13f">13F</span></td>
+              </tr>
+              <tr onclick="sendPrompt('Show me Elliott Management 13D filing on Honeywell details')">
+                <td><div class="inv-row"><div class="avatar av-blue">EM</div><span>Elliott Management</span></div></td>
+                <td><span class="ticker-pill">HON</span></td>
+                <td><span style="color:var(--color-text-success);font-size:11px;font-weight:500">▲ New</span></td>
+                <td>Jun 2</td>
+                <td class="pos">+$1.2B</td>
+                <td>8.3%<div class="pct-bar"><div class="pct-fill" style="width:33%"></div></div></td>
+                <td>5.3M</td>
+                <td>$226.10</td>
+                <td><span class="form-badge f13d">13D</span></td>
+              </tr>
+              <tr onclick="sendPrompt('Show me all Bridgewater Q1 2026 portfolio changes')">
+                <td><div class="inv-row"><div class="avatar av-teal">BW</div><span>Bridgewater Assoc.</span></div></td>
+                <td><span class="ticker-pill">SPY</span></td>
+                <td><span style="color:var(--color-text-success);font-size:11px;font-weight:500">▲ Added</span></td>
+                <td>Mar 31</td>
+                <td class="pos">+$620M</td>
+                <td>11.4%<div class="pct-bar"><div class="pct-fill" style="width:46%"></div></div></td>
+                <td>1.4M</td>
+                <td>$445.20</td>
+                <td><span class="form-badge f13f">13F</span></td>
+              </tr>
+              <tr>
+                <td><div class="inv-row"><div class="avatar av-purple">TG</div><span>Tiger Global Mgmt</span></div></td>
+                <td><span class="ticker-pill">AMZN</span></td>
+                <td><span style="color:var(--color-text-success);font-size:11px;font-weight:500">▲ New</span></td>
+                <td>Mar 31</td>
+                <td class="pos">+$480M</td>
+                <td>3.4%<div class="pct-bar"><div class="pct-fill" style="width:14%"></div></div></td>
+                <td>2.6M</td>
+                <td>$184.50</td>
+                <td><span class="form-badge f13f">13F</span></td>
+              </tr>
+              <tr>
+                <td><div class="inv-row"><div class="avatar av-green">JH</div><span>Jensen Huang</span></div></td>
+                <td><span class="ticker-pill">NVDA</span></td>
+                <td><span style="color:var(--color-text-success);font-size:11px;font-weight:500">▲ Buy</span></td>
+                <td>Jun 2</td>
+                <td class="pos">+$48.2M</td>
+                <td>—</td>
+                <td>430K</td>
+                <td>$112.09</td>
+                <td><span class="form-badge f4">Form 4</span></td>
+              </tr>
+              <tr>
+                <td><div class="inv-row"><div class="avatar av-coral">DT</div><span>Druckenmiller Fund</span></div></td>
+                <td><span class="ticker-pill">MSFT</span></td>
+                <td><span style="color:var(--color-text-danger);font-size:11px;font-weight:500">▼ Reduced</span></td>
+                <td>Mar 31</td>
+                <td class="neg">−$330M</td>
+                <td>4.1%<div class="pct-bar"><div class="pct-fill" style="width:16%;background:var(--color-text-danger)"></div></div></td>
+                <td>640K</td>
+                <td>$415.70</td>
+                <td><span class="form-badge f13f">13F</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- INVESTORS -->
+      <div class="section" id="sec-investors">
+        <div class="section-head"><span class="section-label">Tracked investors</span></div>
+        <div class="filter-row">
+          <span class="chip sel" onclick="selChip(this)">All</span>
+          <span class="chip" onclick="selChip(this)">Hedge funds</span>
+          <span class="chip" onclick="selChip(this)">PE / Activist</span>
+          <span class="chip" onclick="selChip(this)">Individuals</span>
+          <span class="chip" onclick="selChip(this)">Mutual funds</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Investor</th><th>Type</th><th>AUM</th><th>Holdings</th><th>Last filing</th><th>YTD change</th><th>Top position</th></tr>
+            </thead>
+            <tbody>
+              <tr onclick="show('profile',document.querySelector('.nav-item:nth-child(5)'))">
+                <td><div class="inv-row"><div class="avatar av-amber">BH</div><span style="font-weight:500">Berkshire Hathaway</span></div></td>
+                <td style="color:var(--color-text-secondary);font-size:11px">Value fund</td>
+                <td>$380.1B</td>
+                <td>47</td>
+                <td>May 15, 2026</td>
+                <td class="pos">+8.3%</td>
+                <td><span class="ticker-pill">AAPL</span> 22.6%</td>
+              </tr>
+              <tr>
+                <td><div class="inv-row"><div class="avatar av-teal">BW</div><span style="font-weight:500">Bridgewater Assoc.</span></div></td>
+                <td style="color:var(--color-text-secondary);font-size:11px">Macro hedge</td>
+                <td>$27.4B</td>
+                <td>1,040</td>
+                <td>May 15, 2026</td>
+                <td class="pos">+2.1%</td>
+                <td><span class="ticker-pill">SPY</span> 11.4%</td>
+              </tr>
+              <tr>
+                <td><div class="inv-row"><div class="avatar av-blue">EM</div><span style="font-weight:500">Elliott Management</span></div></td>
+                <td style="color:var(--color-text-secondary);font-size:11px">Activist PE</td>
+                <td>$65.2B</td>
+                <td>23</td>
+                <td>Jun 2, 2026</td>
+                <td class="pos">+14.7%</td>
+                <td><span class="ticker-pill">HON</span> 8.3%</td>
+              </tr>
+              <tr>
+                <td><div class="inv-row"><div class="avatar av-purple">TG</div><span style="font-weight:500">Tiger Global Mgmt</span></div></td>
+                <td style="color:var(--color-text-secondary);font-size:11px">Hedge fund</td>
+                <td>$14.1B</td>
+                <td>138</td>
+                <td>May 15, 2026</td>
+                <td class="neg">−3.2%</td>
+                <td><span class="ticker-pill">META</span> 9.1%</td>
+              </tr>
+              <tr>
+                <td><div class="inv-row"><div class="avatar av-green">SD</div><span style="font-weight:500">Stanley Druckenmiller</span></div></td>
+                <td style="color:var(--color-text-secondary);font-size:11px">Individual</td>
+                <td>$2.9B</td>
+                <td>31</td>
+                <td>May 15, 2026</td>
+                <td class="neg">−1.4%</td>
+                <td><span class="ticker-pill">NVDA</span> 17.2%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="section" id="sec-profile">
+        <div class="profile-header">
+          <div class="profile-av av-amber" style="background:#FAC775;color:#633806">BH</div>
+          <div class="profile-info">
+            <h2>Berkshire Hathaway</h2>
+            <p>Value fund · Warren Buffett · CIK 1067983 · 13F filer since 1994</p>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button onclick="sendPrompt('Analyze Berkshire Hathaway Q1 2026 portfolio changes and what they signal about Buffett\'s current market thesis')">Analyze thesis ↗</button>
+            <button onclick="sendPrompt('Alert me when Berkshire Hathaway files a new 13F or 13D')">Set alert ↗</button>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="metric-card"><div class="metric-label">AUM (13F reported)</div><div class="metric-val">$380.1B</div></div>
+          <div class="metric-card"><div class="metric-label">Holdings</div><div class="metric-val">47</div></div>
+          <div class="metric-card"><div class="metric-label">Top 5 concentration</div><div class="metric-val">71%</div></div>
+          <div class="metric-card"><div class="metric-label">Quarterly turnover</div><div class="metric-val">2.1%</div></div>
+        </div>
+        <div class="tabs">
+          <div class="tab active" onclick="selTab(this,'h')">Holdings</div>
+          <div class="tab" onclick="selTab(this,'c')">Changes this Q</div>
+          <div class="tab" onclick="selTab(this,'p')">Portfolio concentration</div>
+        </div>
+        <div id="tab-h">
+          <div class="holdings-row header"><span>Company</span><span>Ticker</span><span>Value</span><span>Shares</span><span>% portfolio</span><span>QoQ change</span></div>
+          <div class="holdings-row" onclick="sendPrompt('Why does Buffett hold so much Apple? What is the Apple thesis?')">
+            <span>Apple Inc</span><span class="ticker-pill">AAPL</span><span>$86.0B</span><span>400M</span>
+            <span>22.6%<div class="pct-bar"><div class="pct-fill" style="width:91%"></div></div></span>
+            <span class="neg">▼ −3.1%</span>
+          </div>
+          <div class="holdings-row">
+            <span>American Express</span><span class="ticker-pill">AXP</span><span>$77.9B</span><span>151M</span>
+            <span>20.5%<div class="pct-bar"><div class="pct-fill" style="width:82%"></div></div></span>
+            <span class="pos">▲ +0.4%</span>
+          </div>
+          <div class="holdings-row">
+            <span>Bank of America</span><span class="ticker-pill">BAC</span><span>$39.6B</span><span>1.03B</span>
+            <span>10.4%<div class="pct-bar"><div class="pct-fill" style="width:42%"></div></div></span>
+            <span style="color:var(--color-text-tertiary)">— Unchanged</span>
+          </div>
+          <div class="holdings-row">
+            <span>Coca-Cola</span><span class="ticker-pill">KO</span><span>$38.8B</span><span>400M</span>
+            <span>10.2%<div class="pct-bar"><div class="pct-fill" style="width:41%"></div></div></span>
+            <span style="color:var(--color-text-tertiary)">— Unchanged</span>
+          </div>
+          <div class="holdings-row">
+            <span>Chevron</span><span class="ticker-pill">CVX</span><span>$27.4B</span><span>118M</span>
+            <span>7.2%<div class="pct-bar"><div class="pct-fill" style="width:29%"></div></div></span>
+            <span class="neg">▼ −1.2%</span>
+          </div>
+          <div class="holdings-row">
+            <span>Occidental Petro.</span><span class="ticker-pill">OXY</span><span>$13.9B</span><span>255M</span>
+            <span>3.7%<div class="pct-bar"><div class="pct-fill" style="width:15%"></div></div></span>
+            <span class="pos">▲ +0.9%</span>
+          </div>
+          <div class="holdings-row">
+            <span>Taiwan Semiconductor</span><span class="ticker-pill">TSM</span><span>$4.8B</span><span>41M</span>
+            <span>1.3%<div class="pct-bar"><div class="pct-fill" style="width:5%"></div></div></span>
+            <span class="pos" style="font-size:11px">▲ New position</span>
+          </div>
+        </div>
+        <div id="tab-c" style="display:none">
+          <div style="padding:20px;text-align:center;color:var(--color-text-tertiary);font-size:13px">Select "changes" view — new/increased/reduced/exited this quarter</div>
+        </div>
+        <div id="tab-p" style="display:none">
+          <div style="padding:20px;text-align:center;color:var(--color-text-tertiary);font-size:13px">Portfolio concentration breakdown chart</div>
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div class="section" id="sec-alerts">
+        <div class="section-head"><span class="section-label">Alert configuration</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+          <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:14px">
+            <div style="font-size:13px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-bell" style="font-size:14px" aria-hidden="true"></i> Form 4 insider buys</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Alert when C-suite buys ≥ $1M of own stock</div>
+            <div style="font-size:11px;padding:4px 8px;border-radius:4px;background:var(--color-background-success);color:var(--color-text-success);display:inline-block">Active · 12 investors tracked</div>
+          </div>
+          <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:14px">
+            <div style="font-size:13px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-bolt" style="font-size:14px" aria-hidden="true"></i> New 13D activist filing</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Any 5%+ ownership stake filed</div>
+            <div style="font-size:11px;padding:4px 8px;border-radius:4px;background:var(--color-background-success);color:var(--color-text-success);display:inline-block">Active · all filers</div>
+          </div>
+          <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:14px">
+            <div style="font-size:13px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-chart-bar" style="font-size:14px" aria-hidden="true"></i> Berkshire 13F filed</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Quarterly 13F from Berkshire Hathaway</div>
+            <div style="font-size:11px;padding:4px 8px;border-radius:4px;background:var(--color-background-success);color:var(--color-text-success);display:inline-block">Active</div>
+          </div>
+          <div style="border:1px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:14px;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="sendPrompt('Help me set up a new smart money alert — what options do I have?')">
+            <span style="font-size:12px;color:var(--color-text-secondary)"><i class="ti ti-plus" aria-hidden="true"></i> Add new alert ↗</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const titles = {feed:'Live filing feed',investments:'All investments',investors:'Tracked investors',profile:'Investor profile — Berkshire Hathaway',alerts:'Alerts'};
+function show(id, el) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const map = {feed:'sec-feed',investments:'sec-investments',investors:'sec-investors',profile:'sec-profile',alerts:'sec-alerts'};
+  document.getElementById(map[id]).classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('page-title').textContent = titles[id]||id;
+}
+function selChip(el){
+  el.closest('.filter-row').querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function selTab(el,t){
+  el.closest('.tabs').querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  ['h','c','p'].forEach(id=>{ const d=document.getElementById('tab-'+id); if(d) d.style.display='none'; });
+  const d=document.getElementById('tab-'+t); if(d) d.style.display='block';
+}
+</script>

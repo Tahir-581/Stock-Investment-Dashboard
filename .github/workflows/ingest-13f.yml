@@ -1,0 +1,62 @@
+name: Ingest SEC 13F Data
+
+on:
+  schedule:
+    # 1st of Feb, May, Aug, Nov at 06:00 UTC (after SEC quarterly drops)
+    - cron: '0 6 1 2,5,8,11 *'
+  workflow_dispatch:
+    inputs:
+      full_ingest:
+        description: 'Run full quarterly 13F ZIP ingest (~30 min, requires Neon storage headroom)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: smart-money-tracker
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: smart-money-tracker/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run db:migrate
+
+      - name: Ingest latest 13F quarter
+        if: github.event_name == 'schedule' || inputs.full_ingest == true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SEC_USER_AGENT: SmartMoneyTracker contact@tahir824raja@gmail.com
+        run: npm run ingest:13f
+
+      - name: Refresh ticker map
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run ingest:tickers
+
+      - name: Delta sync (recent filings)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SEC_USER_AGENT: SmartMoneyTracker contact@tahir824raja@gmail.com
+        run: npm run ingest:delta
+
+      - name: Ingest Form 4 insiders
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SEC_USER_AGENT: SmartMoneyTracker contact@tahir824raja@gmail.com
+          FORM4_COUNT: '200'
+        run: npm run ingest:form4
